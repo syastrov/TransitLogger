@@ -1,4 +1,6 @@
-package com.example.transitlogger.model;
+package com.example.transitlogger.tests;
+
+import com.example.transitlogger.model.Distance;
 
 import junit.framework.TestCase;
 
