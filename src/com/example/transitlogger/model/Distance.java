@@ -8,19 +8,19 @@ public class Distance {
 		this.distanceKm = distanceKm;
 	}
 	
-	public double getDistanceKm() {
+	public double getKilometers() {
 		return distanceKm;
 	}
 
-	public void setDistanceKm(double distanceKm) {
+	public void setKilometers(double distanceKm) {
 		this.distanceKm = distanceKm;
 	}
 	
-	public double getDistanceMiles() {
+	public double getMiles() {
 		return distanceKm / KM_PER_MI;
 	}
 
-	public void setDistanceMiles(double distanceMiles) {
+	public void setMiles(double distanceMiles) {
 		this.distanceKm = KM_PER_MI * distanceMiles;
 	}
 }
