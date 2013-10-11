@@ -15,6 +15,7 @@ import android.widget.TextView;
 public class TripActivity extends Activity {
 	private Trip trip;
 	private TextView distanceText;
+	private TextView labelDistance;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -24,7 +25,9 @@ public class TripActivity extends Activity {
 		// TODO: accept specific trip IDs
 
 		distanceText = (TextView) findViewById(R.id.distanceText);
-		updateDistance();
+		labelDistance = (TextView) findViewById(R.id.labelDistance);
+		labelDistance.setVisibility(View.GONE);
+		distanceText.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -64,5 +67,9 @@ public class TripActivity extends Activity {
 		Button startStopTripButton = (Button) findViewById(R.id.startStopTripButton);
 		startStopTripButton.setText("@string/end_trip");
 		startStopTripButton.setOnClickListener(new EndTripClickListener(this));
+		
+		// Show the distance information
+		labelDistance.setVisibility(View.VISIBLE);
+		distanceText.setVisibility(View.VISIBLE);
 	}
 }
