@@ -3,7 +3,7 @@ package com.example.transitlogger.model;
 import java.util.Date;
 
 public class Trip {
-	protected Location from, to;
+	protected Place from, to;
 	protected TripPurpose purpose;
 	protected Distance distance;
 	protected Date fromDate, toDate;
@@ -11,16 +11,16 @@ public class Trip {
 	
 	
 
-	public Location getFrom() {
+	public Place getFrom() {
 		return from;
 	}
-	public void setFrom(Location from) {
+	public void setFrom(Place from) {
 		this.from = from;
 	}
-	public Location getTo() {
+	public Place getTo() {
 		return to;
 	}
-	public void setTo(Location to) {
+	public void setTo(Place to) {
 		this.to = to;
 	}
 	public TripPurpose getPurpose() {

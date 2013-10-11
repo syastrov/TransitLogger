@@ -1,12 +1,12 @@
 package com.example.transitlogger.model;
 
-public class Location {
+public class Place {
 	protected double lat, lon;
 	protected String name;
 	protected Distance autoSnapRange;
 	protected long id;
 	
-	public Location () {
+	public Place () {
 		;
 	}
 	
