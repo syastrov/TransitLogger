@@ -11,6 +11,8 @@ public class Trip {
 	protected long id;
 	
 	public Trip() {
+		fromDate = new Date();
+		toDate = new Date();
 	}
 
 	public Place getFrom() {

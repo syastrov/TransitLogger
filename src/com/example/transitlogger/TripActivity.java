@@ -1,5 +1,7 @@
 package com.example.transitlogger;
 
+import java.util.Date;
+
 import com.example.transitlogger.model.Distance;
 import com.example.transitlogger.model.Trip;
 
@@ -20,6 +22,7 @@ import android.widget.Toast;
 
 public class TripActivity extends Activity {
 	private Trip trip;
+	public TripDB tripDB;
 	private TextView distanceText;
 	private TextView labelDistance;
 	private LocationManager locationManager;
@@ -45,6 +48,9 @@ public class TripActivity extends Activity {
 
 		// Create a new trip.
 		trip = new Trip();
+		
+	    tripDB = new TripDB(this);
+	    tripDB.open();
 		
 		setupLocationProvider();
 	}
@@ -167,9 +173,8 @@ public class TripActivity extends Activity {
 		startStopTripButton.setText(getString(R.string.start_trip));
 		startStopTripButton.setOnClickListener(new StartTripClickListener(this));
 		
-		// Show the distance information
-		labelDistance.setVisibility(View.VISIBLE);
-		distanceText.setVisibility(View.VISIBLE);
+		// Set the end date
+		trip.setToDate(new Date());
 		
 		Context context = getApplicationContext();
 		CharSequence text = "Trip ended! Distance: " + trip.getDistance().getKilometers() + " km";
@@ -177,6 +182,15 @@ public class TripActivity extends Activity {
 
 		Toast toast = Toast.makeText(context, text, duration);
 		toast.show();
+		
+		// Save trip to database
+		long id = tripDB.addTrip(trip);
+
+		Toast.makeText(context, "Trip added to DB with id: " + id, Toast.LENGTH_SHORT).show();		
+		
+		// TODO: Allow the distance to be editable now.
+		
+		// Possibly, let them discard the trip somehow, rather than saving it
 	}
 	
 	public void updateLocation(Location location) {
@@ -193,6 +207,8 @@ public class TripActivity extends Activity {
 	}
 	
 	public void onStartTrip(View view) {
+		trip.setFromDate(new Date());
+		
 		// Change the button to "End Trip"
 		Button startStopTripButton = (Button) findViewById(R.id.startStopTripButton);
 		startStopTripButton.setText(getString(R.string.end_trip));
