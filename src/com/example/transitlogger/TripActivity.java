@@ -10,11 +10,13 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class TripActivity extends Activity {
 	private Trip trip;
@@ -40,6 +42,9 @@ public class TripActivity extends Activity {
 		labelDistance = (TextView) findViewById(R.id.labelDistance);
 		labelDistance.setVisibility(View.GONE);
 		distanceText.setVisibility(View.GONE);
+
+		// Create a new trip.
+		trip = new Trip();
 		
 		setupLocationProvider();
 	}
@@ -53,9 +58,9 @@ public class TripActivity extends Activity {
 			public void onLocationChanged(Location location) {
 				// Called when a new location is found by the network location provider.
 				// Only update the location if it's better
-		    	if (isBetterLocation(location, currentBestLocation)) {
+		    	if (location != null && isBetterLocation(location, currentBestLocation)) {
 			    	updateLocation(location);
-		    		currentBestLocation = location;
+			    	currentBestLocation = location;
 		    	}
 		    }
 
@@ -144,30 +149,59 @@ public class TripActivity extends Activity {
 			tripActivity.onEndTrip(v);
 		}
 	}
+	class StartTripClickListener implements OnClickListener {
+		private TripActivity tripActivity;
+
+		public StartTripClickListener(TripActivity tripActivity) {
+			this.tripActivity = tripActivity;
+		}
+		
+		public void onClick(View v) {
+			tripActivity.onStartTrip(v);
+		}
+	}
 	
 	public void onEndTrip(View view) {
-		;
+		// Change the button to "Start Trip"
+		Button startStopTripButton = (Button) findViewById(R.id.startStopTripButton);
+		startStopTripButton.setText(getString(R.string.start_trip));
+		startStopTripButton.setOnClickListener(new StartTripClickListener(this));
+		
+		// Show the distance information
+		labelDistance.setVisibility(View.VISIBLE);
+		distanceText.setVisibility(View.VISIBLE);
+		
+		Context context = getApplicationContext();
+		CharSequence text = "Trip ended! Distance: " + trip.getDistance().getKilometers() + " km";
+		int duration = Toast.LENGTH_SHORT;
+
+		Toast toast = Toast.makeText(context, text, duration);
+		toast.show();
 	}
 	
 	public void updateLocation(Location location) {
-		float dist = currentBestLocation.distanceTo(location);
+		if (currentBestLocation == null) {
+			currentBestLocation = location;
+		}
+		// Get distance from current to new location in kilometers
+		double dist = currentBestLocation.distanceTo(location) / 1000.0;
+		
+		Log.d(getClass().getName(), String.format("curLocation: %s\nnewLocation: %s", currentBestLocation, location));
 		Distance distance = trip.getDistance();
-		distance.setKilometers(distance.getKilometers() + dist/1000.0);
-		distanceText.setText(distance.getKilometers() + " km");
+		distance.setKilometers(distance.getKilometers() + dist);
+		distanceText.setText(String.format("%.2f km", distance.getKilometers()));
 	}
 	
 	public void onStartTrip(View view) {
-		// Create a new trip.
-		trip = new Trip();
 		// Change the button to "End Trip"
-		
-
 		Button startStopTripButton = (Button) findViewById(R.id.startStopTripButton);
-		startStopTripButton.setText("@string/end_trip");
+		startStopTripButton.setText(getString(R.string.end_trip));
 		startStopTripButton.setOnClickListener(new EndTripClickListener(this));
 		
 		// Show the distance information
 		labelDistance.setVisibility(View.VISIBLE);
 		distanceText.setVisibility(View.VISIBLE);
+
+		distanceText.setText("0 km");
 	}
 }

@@ -3,13 +3,15 @@ package com.example.transitlogger.model;
 import java.util.Date;
 
 public class Trip {
-	protected Place from, to;
-	protected TripPurpose purpose;
-	protected Distance distance;
+	protected Place from = new Place();
+	protected Place to = new Place();
+	protected TripPurpose purpose = new TripPurpose("Business");
+	protected Distance distance = new Distance();
 	protected Date fromDate, toDate;
 	protected long id;
 	
-	
+	public Trip() {
+	}
 
 	public Place getFrom() {
 		return from;

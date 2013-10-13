@@ -4,6 +4,10 @@ public class Distance {
 	public static final double KM_PER_MI = 1.60934;
 	protected double distanceKm;
 
+	public Distance() {
+		this.distanceKm = 0.0;
+	}
+	
 	public Distance(double distanceKm) {
 		this.distanceKm = distanceKm;
 	}
