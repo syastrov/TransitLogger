@@ -15,7 +15,8 @@ public class TripDBHelper extends SQLiteOpenHelper {
     private static final String TRIP_TABLE_CREATE =
                 "CREATE TABLE " + TABLE_TRIPS + " ("
         		+ COLUMN_ID + " integer primary key autoincrement,"
-        		+ COLUMN_DISTANCE + " float not null";
+        		+ COLUMN_DISTANCE + " float not null"
+        		+ ")";
 	private static final String DATABASE_NAME = "TransitLogger";
 
     TripDBHelper(Context context) {

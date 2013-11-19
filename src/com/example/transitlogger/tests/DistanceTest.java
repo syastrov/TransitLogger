@@ -1,8 +1,8 @@
 package com.example.transitlogger.tests;
 
-import com.example.transitlogger.model.Distance;
-
 import junit.framework.TestCase;
+
+import com.example.transitlogger.model.Distance;
 
 public class DistanceTest extends TestCase {
 
