@@ -34,14 +34,26 @@ public class TripActivity extends Activity {
 	
 	public static TripDB tripDB;
 	
+	public enum Mode {
+		WAITING_FOR_LOCATION,
+		STARTED,
+		ENDED;
+	}
+	
+	Mode mode;
+	
 	private TextView distanceText;
 	private TextView labelDistance;
 	private LocationManager locationManager;
+	
 	private AutoCompleteTextView startPlaceText;
-
+	private AutoCompleteTextView endPlaceText;
+	
+	private Button okStartPlaceButton;
+	private Button okEndPlaceButton;
+	
     private Location currentBestLocation = null;
 
-	private AutoCompleteTextView endPlaceText;
 	
 	public LocationManager getLocationManager() {
 		return locationManager;
@@ -73,30 +85,42 @@ public class TripActivity extends Activity {
 		
 		updatePlacesAutocomplete();
 		
-		// Show the distance information
-		labelDistance.setVisibility(View.VISIBLE);
-		distanceText.setVisibility(View.VISIBLE);
-		
 		// Hide the start place add button
-		Button addStartPlaceButton = (Button) findViewById(R.id.addStartPlaceButton);
-		addStartPlaceButton.setVisibility(View.INVISIBLE);
+		okStartPlaceButton = (Button) findViewById(R.id.okStartPlaceButton);
+		okStartPlaceButton.setVisibility(View.INVISIBLE);
 		
 		// Hide the start place autocomplete
 		startPlaceText.setVisibility(View.INVISIBLE);
 
 		// Hide the end place add button
-		Button addEndPlaceButton = (Button) findViewById(R.id.addEndPlaceButton);
-		addEndPlaceButton.setVisibility(View.INVISIBLE);
+		okEndPlaceButton = (Button) findViewById(R.id.okEndPlaceButton);
+		okEndPlaceButton.setVisibility(View.INVISIBLE);
 		
 		// Hide the end place autocomplete
 		endPlaceText = (AutoCompleteTextView) findViewById(R.id.autoCompleteEndPlace);
 		endPlaceText.setVisibility(View.INVISIBLE);
 
-		distanceText.setText("Waiting for GPS...");
+		setMode(Mode.WAITING_FOR_LOCATION);
+	}
+	
+	public void setMode(Mode mode) {
+		this.mode = mode;
+		
+		switch (mode) {
+		case WAITING_FOR_LOCATION:
+			setStatus("Waiting for GPS...");
+			break;
+		case STARTED:
+			// Show the distance information
+			labelDistance.setVisibility(View.VISIBLE);
+			distanceText.setVisibility(View.VISIBLE);
+			break;
+		}
 	}
 	
 	public void startTrip() {
 		trip.setFromDate(new Date());
+		setMode(Mode.STARTED);
 	}
 	
 	protected void updatePlacesAutocomplete() {
@@ -196,22 +220,24 @@ public class TripActivity extends Activity {
 	}
 	
 	public void onEndTrip(View view) {
-		// Set the end date
-		trip.setToDate(new Date());
-		
-		Place place = tripDB.getPlaceByName(startPlaceText.getText().toString());
-		trip.setStartPlace(place);
-		
-		showLongMessage("Trip ended! Distance: " + trip.getDistance().getKilometers() + " km");
-
-		if (place != null) {
-			showShortMessage("Starting place: " + place.getName() + " (" + place.getId() + ")");
+		if (mode == mode.STARTED) {
+			// Set the end date
+			trip.setToDate(new Date());
+			
+			Place place = tripDB.getPlaceByName(startPlaceText.getText().toString());
+			trip.setStartPlace(place);
+			
+			showLongMessage("Trip ended! Distance: " + trip.getDistance().getKilometers() + " km");
+	
+			if (place != null) {
+				showShortMessage("Starting place: " + place.getName() + " (" + place.getId() + ")");
+			}
+			
+			// Save trip to database
+			long id = tripDB.addTrip(trip);
+	
+			showLongMessage("Trip added to DB with id: " + id);
 		}
-		
-		// Save trip to database
-		long id = tripDB.addTrip(trip);
-
-		showLongMessage("Trip added to DB with id: " + id);
 		
 		// TODO: Allow the distance to be editable now.
 		
@@ -224,7 +250,7 @@ public class TripActivity extends Activity {
 	}
 	
 
-	public void onAddStartPlace(View view) {
+	public void onOKStartPlace(View view) {
 		String name = startPlaceText.getText().toString();
 		
 		// Check if we have a GPS location yet.
@@ -236,32 +262,30 @@ public class TripActivity extends Activity {
 		// Check that this place name has not already been taken.
 		Place place = tripDB.getPlaceByName(name);
 		if (place != null) {
-			showLongMessage("Place already exists with that name!");
+			showLongMessage("Place already exists with that name. Please choose another name.");
 			return;
 		}
 		
+		// Create the new place and add it to the DB
 		Place newPlace = new Place();
 		newPlace.setName(name);
 		newPlace.setLat(currentBestLocation.getLatitude());
 		newPlace.setLon(currentBestLocation.getLongitude());
 		tripDB.addPlace(newPlace);
 		
-		// Hide the add button
-		Button addStartPlaceButton = (Button) findViewById(R.id.addStartPlaceButton);
-		addStartPlaceButton.setVisibility(View.INVISIBLE);
+		// Hide the button
+		okStartPlaceButton.setVisibility(View.INVISIBLE);
 
-		// Switch the startPlace autocomplete with a plain textview,
-		// so the user can't change it anymore.
-		setStartPlace(newPlace.getName());
+		// Update the UI
+		switchStartPlaceView(newPlace.getName());
 		
 		showLongMessage("Added place successfully. " + currentBestLocation.toString());
 	    
+		// Update autocomplete
 		updatePlacesAutocomplete();
-		
-		updateLocation(currentBestLocation);
 	}
 	
-	public void onAddEndPlace(View view) {
+	public void onOKEndPlace(View view) {
 		String name = endPlaceText.getText().toString();
 		// TODO
 	}
@@ -274,9 +298,12 @@ public class TripActivity extends Activity {
 	        case 1:
 	            Bundle bundle = message.getData();
 	            result = bundle.getString("address");
-	            
-	            // TODO: Check which (start or end place) we should set here.
-		        setStartPlace(result);
+
+	            if (mode == Mode.WAITING_FOR_LOCATION) {
+	            	startPlaceText.setText(result);
+	            } else if (mode == Mode.ENDED) {
+	            	endPlaceText.setText(result);
+	            }
 	            break;
 	        default:
 	            result = "Couldn't get address.";
@@ -287,7 +314,10 @@ public class TripActivity extends Activity {
 	public void onLookupAddress(View view) {
 		if (currentBestLocation != null) {
 			// reverse geocode
-			GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
+			if (AppStatus.isOnline(this)) {
+				// Try to get the address through reverse geocode of the coordinates.
+				GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
+			}
 		}
 	}
 	
@@ -304,37 +334,40 @@ public class TripActivity extends Activity {
 				// Begin the trip once we've got our first location information
 				startTrip();
 				
-				setStartPlace(nearestPlace.getName());
+				switchStartPlaceView(nearestPlace.getName());
 			} else {
 				// If we can't, prompt the user for it, before beginning the trip
 				showLongMessage("Please enter a name for this location.");
 				
-				// Hide the start place add button
-				Button addStartPlaceButton = (Button) findViewById(R.id.addStartPlaceButton);
-				addStartPlaceButton.setVisibility(View.VISIBLE);
+				// Show the start place OK button
+				okStartPlaceButton.setVisibility(View.VISIBLE);
 				
-				// Hide the start place autocomplete
+				// Show the start place text field
 				startPlaceText.setVisibility(View.VISIBLE);
 				
-				GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
-				return;
+				if (AppStatus.isOnline(this)) {
+					// Try to get the address through reverse geocode of the coordinates.
+					GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
+				}
 			}
 		}
 		
 		setStatus(currentBestLocation.toString());
 		
-		// Get distance from current to new location in kilometers.
-		double dist = currentBestLocation.distanceTo(location) / 1000.0;
-		
-		Log.d(getClass().getName(), String.format("curLocation: %s\nnewLocation: %s", currentBestLocation, location));
-		
-		// Update trip distance.
-		Distance distance = trip.getDistance();
-		distance.setKilometers(distance.getKilometers() + dist);
-		distanceText.setText(String.format("%.2f km", distance.getKilometers()));
+		if (mode == Mode.STARTED) {
+			// Get distance from current to new location in kilometers.
+			double dist = currentBestLocation.distanceTo(location) / 1000.0;
+			
+			Log.d(getClass().getName(), String.format("curLocation: %s\nnewLocation: %s", currentBestLocation, location));
+			
+			// Update trip distance.
+			Distance distance = trip.getDistance();
+			distance.setKilometers(distance.getKilometers() + dist);
+			distanceText.setText(String.format("%.2f km", distance.getKilometers()));
+		}
 	}
 	
-	private void setStartPlace(String name) {
+	private void switchStartPlaceView(String name) {
 		// Switch the startPlace autocomplete with a plain textview,
 		// so the user can't change it anymore.
 	    ViewSwitcher switcher = (ViewSwitcher) findViewById(R.id.viewSwitcherStartPlace);

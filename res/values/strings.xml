@@ -9,5 +9,5 @@
     <string name="start_trip">Start Trip</string>
     <string name="end_trip">End Trip</string>
     <string name="distance">Distance:</string>
-    <string name="add_place">OK</string>
+    <string name="ok_place">OK</string>
 </resources>

@@ -43,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/endTripButton"
-        android:layout_toLeftOf="@+id/addStartPlaceButton" >
+        android:layout_toLeftOf="@+id/okStartPlaceButton" >
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteStartPlace"
@@ -66,14 +66,14 @@
     </ViewSwitcher>
 
     <Button
-        android:id="@+id/addStartPlaceButton"
+        android:id="@+id/okStartPlaceButton"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/viewSwitcherStartPlace"
         android:layout_alignParentRight="true"
-        android:onClick="onAddStartPlace"
-        android:text="@string/add_place" />
+        android:onClick="onOKStartPlace"
+        android:text="@string/ok_place" />
 
     <ViewSwitcher
         android:id="@+id/ViewSwitcher01"
@@ -81,7 +81,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/labelDistance"
         android:layout_marginTop="47dp"
-        android:layout_toLeftOf="@+id/addEndPlaceButton" >
+        android:layout_toLeftOf="@+id/okEndPlaceButton" >
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteEndPlace"
@@ -101,22 +101,21 @@
     </ViewSwitcher>
 
     <Button
-        android:id="@+id/addEndPlaceButton"
+        android:id="@+id/okEndPlaceButton"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/ViewSwitcher01"
-        android:layout_alignLeft="@+id/addStartPlaceButton"
-        android:onClick="onAddEndPlace"
-        android:text="@string/add_place" />
+        android:layout_alignLeft="@+id/okStartPlaceButton"
+        android:onClick="onOKEndPlace"
+        android:text="@string/ok_place" />
 
     <TextView
         android:id="@+id/statusText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/labelDistance"
-        android:layout_below="@+id/ViewSwitcher01"
-        android:layout_marginTop="28dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:text="Status"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -124,8 +123,8 @@
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/distanceText"
-        android:layout_alignTop="@+id/statusText"
+        android:layout_above="@+id/statusText"
+        android:layout_centerHorizontal="true"
         android:onClick="onLookupAddress"
         android:text="Lookup Address" />
 
