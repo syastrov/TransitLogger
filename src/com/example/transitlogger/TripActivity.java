@@ -185,8 +185,11 @@ public class TripActivity extends Activity {
 		Place place = tripDB.getPlaceByName(startPlace.getText().toString());
 		trip.setStartPlace(place);
 		
-		showShortMessage("Trip ended! Distance: " + trip.getDistance().getKilometers() + " km" +
-				" Starting place: " + place.getName() + " (" + place.getId() + ")");
+		showLongMessage("Trip ended! Distance: " + trip.getDistance().getKilometers() + " km");
+
+		if (place != null) {
+			showShortMessage("Starting place: " + place.getName() + " (" + place.getId() + ")");
+		}
 		
 		// Save trip to database
 		long id = tripDB.addTrip(trip);
@@ -196,6 +199,11 @@ public class TripActivity extends Activity {
 		// TODO: Allow the distance to be editable now.
 		
 		// Possibly, let them discard the trip somehow, rather than saving it
+		
+		// Go back to main screen
+	    Intent intent = new Intent(this, MainActivity.class);
+	    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	    startActivity(intent);
 	}
 	
 
