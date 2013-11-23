@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 public class TripActivity extends Activity {
 	private Trip trip;
@@ -173,18 +174,6 @@ public class TripActivity extends Activity {
 		return true;
 	}
 	
-	class EndTripClickListener implements OnClickListener {
-		private TripActivity tripActivity;
-
-		public EndTripClickListener(TripActivity tripActivity) {
-			this.tripActivity = tripActivity;
-		}
-		
-		public void onClick(View v) {
-			tripActivity.onEndTrip(v);
-		}
-	}
-	
 	public void onEndTrip(View view) {
 		// Set the end date
 		trip.setToDate(new Date());
@@ -219,13 +208,25 @@ public class TripActivity extends Activity {
 		Place place = tripDB.getPlaceByName(name);
 		if (place != null) {
 			showLongMessage("Place already exists with that name!");
-		} else {
-			Place newPlace = new Place();
-			newPlace.setName(name);
-			newPlace.setLat(currentBestLocation.getLatitude());
-			newPlace.setLon(currentBestLocation.getLongitude());
-			tripDB.addPlace(newPlace);
+			return;
 		}
+		
+		Place newPlace = new Place();
+		newPlace.setName(name);
+		newPlace.setLat(currentBestLocation.getLatitude());
+		newPlace.setLon(currentBestLocation.getLongitude());
+		tripDB.addPlace(newPlace);
+		
+		// Hide the add button
+		Button addStartPlaceButton = (Button) findViewById(R.id.addStartPlaceButton);
+		addStartPlaceButton.setVisibility(View.INVISIBLE);
+
+		// Switch the startPlace autocomplete with a plain textview,
+		// so the user can't change it anymore.
+	    ViewSwitcher switcher = (ViewSwitcher) findViewById(R.id.viewSwitcherStartPlace);
+	    switcher.showNext(); //or switcher.showPrevious();
+	    TextView startPlaceTextView = (TextView) switcher.findViewById(R.id.startPlaceTextView);
+	    startPlaceTextView.setText("Starting place: " + newPlace.getName());
 		
 		updatePlacesAutocomplete();
 	}

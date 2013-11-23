@@ -9,7 +9,7 @@
     tools:context=".MainActivity" >
 
     <Button
-        android:id="@+id/startStopTripButton"
+        android:id="@+id/newTripButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"

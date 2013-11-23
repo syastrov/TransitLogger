@@ -9,7 +9,7 @@
     tools:context=".TripActivity" >
 
     <Button
-        android:id="@+id/startStopTripButton"
+        android:id="@+id/endTripButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -21,8 +21,8 @@
         android:id="@+id/labelDistance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/startStopTripButton"
-        android:layout_below="@+id/startStopTripButton"
+        android:layout_alignRight="@+id/endTripButton"
+        android:layout_below="@+id/endTripButton"
         android:layout_marginRight="66dp"
         android:layout_marginTop="122dp"
         android:text="@string/distance"
@@ -33,26 +33,45 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/labelDistance"
-        android:layout_alignLeft="@+id/startStopTripButton"
+        android:layout_alignLeft="@+id/endTripButton"
         android:layout_marginLeft="46dp"
         android:text="Medium Text"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <AutoCompleteTextView
-        android:id="@+id/autoCompleteStartLocation"
+    <ViewSwitcher
+        android:id="@+id/viewSwitcherStartPlace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/startStopTripButton"
-        android:layout_marginTop="32dp"
-        android:layout_toLeftOf="@+id/addStartPlaceButton"
-        android:ems="10" />
+        android:layout_below="@+id/endTripButton"
+        android:layout_toLeftOf="@+id/addStartPlaceButton" >
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteStartLocation"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:ems="10" >
+
+            <requestFocus />
+        </AutoCompleteTextView>
+
+        <TextView
+            android:id="@+id/startPlaceTextView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:ems="10"
+            android:text="TextView"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </ViewSwitcher>
 
     <Button
         android:id="@+id/addStartPlaceButton"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/autoCompleteStartLocation"
+        android:layout_alignBottom="@+id/viewSwitcherStartPlace"
         android:layout_alignParentRight="true"
         android:onClick="onAddStartPlace"
         android:text="@string/add_place" />
