@@ -233,7 +233,17 @@ public class TripActivity extends Activity {
 			
 			// Begin the trip once we've got our first location information
 			startTrip();
+			
+			// Auto-select the start place if it is not already chosen
+			if (startPlace.getText().length() == 0) {
+				Place nearestPlace = findNearestPlace(currentBestLocation);
+				if (nearestPlace != null) {
+					// Choose it in our place box
+					startPlace.setText(nearestPlace.getName());
+				}
+			}
 		}
+		
 		// Get distance from current to new location in kilometers
 		double dist = currentBestLocation.distanceTo(location) / 1000.0;
 		
@@ -243,6 +253,11 @@ public class TripActivity extends Activity {
 		distanceText.setText(String.format("%.2f km", distance.getKilometers()));
 	}
 	
+	public Place findNearestPlace(Location location) {
+		Place place = tripDB.getNearestPlace(currentBestLocation.getLatitude(), currentBestLocation.getLongitude());
+		return place;
+	}
+
 	public void showMessage(String message, int duration) {
 		Context context = getApplicationContext();
 		CharSequence text = (CharSequence) message;
