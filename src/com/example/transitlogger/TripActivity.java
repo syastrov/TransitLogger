@@ -252,10 +252,7 @@ public class TripActivity extends Activity {
 
 		// Switch the startPlace autocomplete with a plain textview,
 		// so the user can't change it anymore.
-	    ViewSwitcher switcher = (ViewSwitcher) findViewById(R.id.viewSwitcherStartPlace);
-	    switcher.showNext(); //or switcher.showPrevious();
-	    TextView startPlaceTextView = (TextView) switcher.findViewById(R.id.startPlaceTextView);
-	    startPlaceTextView.setText("Starting place: " + newPlace.getName());
+		setStartPlace(newPlace.getName());
 		
 		showLongMessage("Added place successfully. " + currentBestLocation.toString());
 	    
@@ -277,12 +274,13 @@ public class TripActivity extends Activity {
 	        case 1:
 	            Bundle bundle = message.getData();
 	            result = bundle.getString("address");
+	            
+	            // TODO: Check which (start or end place) we should set here.
+		        setStartPlace(result);
 	            break;
 	        default:
 	            result = "Couldn't get address.";
 	        }
-	        // replace by what you need to do
-	        setStatus("Address: " + result);
 	    }   
 	}
 	
@@ -297,25 +295,16 @@ public class TripActivity extends Activity {
 		if (currentBestLocation == null) {
 			currentBestLocation = location;
 			
-//			showLongMessage("Got first good location");
-			
 			// Auto-select the start place if we can
-//			showLongMessage("Finding nearest place");
 			Place nearestPlace = findNearestPlace(currentBestLocation);
 			if (nearestPlace != null) {
-//				showLongMessage("Nearest place: " + nearestPlace.getName());
 				// Choose it in our place box
 				startPlaceText.setText(nearestPlace.getName());
 				
 				// Begin the trip once we've got our first location information
 				startTrip();
 				
-				// Switch the startPlace autocomplete with a plain textview,
-				// so the user can't change it anymore.
-			    ViewSwitcher switcher = (ViewSwitcher) findViewById(R.id.viewSwitcherStartPlace);
-			    switcher.showNext(); //or switcher.showPrevious();
-			    TextView startPlaceTextView = (TextView) switcher.findViewById(R.id.startPlaceTextView);
-			    startPlaceTextView.setText("Starting place: " + nearestPlace.getName());
+				setStartPlace(nearestPlace.getName());
 			} else {
 				// If we can't, prompt the user for it, before beginning the trip
 				showLongMessage("Please enter a name for this location.");
@@ -326,6 +315,8 @@ public class TripActivity extends Activity {
 				
 				// Hide the start place autocomplete
 				startPlaceText.setVisibility(View.VISIBLE);
+				
+				GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
 				return;
 			}
 		}
@@ -343,6 +334,16 @@ public class TripActivity extends Activity {
 		distanceText.setText(String.format("%.2f km", distance.getKilometers()));
 	}
 	
+	private void setStartPlace(String name) {
+		// Switch the startPlace autocomplete with a plain textview,
+		// so the user can't change it anymore.
+	    ViewSwitcher switcher = (ViewSwitcher) findViewById(R.id.viewSwitcherStartPlace);
+	    switcher.showNext(); //or switcher.showPrevious();
+	    TextView startPlaceTextView = (TextView) switcher.findViewById(R.id.startPlaceTextView);
+	    startPlaceTextView.setText("Starting place: " + name);
+//	    startPlaceText.setEnabled(false); // TODO: disable keyboard?
+	}
+
 	public Place findNearestPlace(Location location) {
 		Place place = tripDB.getNearestPlace(location.getLatitude(), location.getLongitude());
 		return place;

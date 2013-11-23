@@ -3,7 +3,7 @@ package com.example.transitlogger.model;
 public class Place {
 	protected double lat, lon;
 	protected String name;
-	protected Distance autoSnapRange = new Distance(0.500); // in kilometers
+	protected Distance autoSnapRange = new Distance(0.050); // in kilometers
 	protected long id;
 	
 	public Place () {
