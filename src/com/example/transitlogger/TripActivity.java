@@ -34,13 +34,14 @@ public class TripActivity extends Activity {
 	
 	public static TripDB tripDB;
 	
-	public enum Mode {
+	public enum State {
 		WAITING_FOR_LOCATION,
 		STARTED,
-		ENDED;
+		ENDED,
+		AFTER_ENDED;
 	}
 	
-	Mode mode;
+	State state;
 	
 	private TextView distanceText;
 	private TextView labelDistance;
@@ -100,13 +101,13 @@ public class TripActivity extends Activity {
 		endPlaceText = (AutoCompleteTextView) findViewById(R.id.autoCompleteEndPlace);
 		endPlaceText.setVisibility(View.INVISIBLE);
 
-		setMode(Mode.WAITING_FOR_LOCATION);
+		setState(State.WAITING_FOR_LOCATION);
 	}
 	
-	public void setMode(Mode mode) {
-		this.mode = mode;
+	public void setState(State state) {
+		this.state = state;
 		
-		switch (mode) {
+		switch (state) {
 		case WAITING_FOR_LOCATION:
 			setStatus("Waiting for GPS...");
 			break;
@@ -115,12 +116,21 @@ public class TripActivity extends Activity {
 			labelDistance.setVisibility(View.VISIBLE);
 			distanceText.setVisibility(View.VISIBLE);
 			break;
+		case ENDED:
+			// Show the end place controls
+			okEndPlaceButton.setVisibility(View.VISIBLE);
+			endPlaceText.setVisibility(View.VISIBLE);
 		}
 	}
 	
 	public void startTrip() {
 		trip.setFromDate(new Date());
-		setMode(Mode.STARTED);
+		setState(State.STARTED);
+	}
+	
+	public void endTrip() {
+		trip.setToDate(new Date());
+		setState(State.ENDED);
 	}
 	
 	protected void updatePlacesAutocomplete() {
@@ -220,18 +230,10 @@ public class TripActivity extends Activity {
 	}
 	
 	public void onEndTrip(View view) {
-		if (mode == mode.STARTED) {
-			// Set the end date
-			trip.setToDate(new Date());
-			
-			Place place = tripDB.getPlaceByName(startPlaceText.getText().toString());
-			trip.setStartPlace(place);
-			
+		if (state == state.STARTED) {
 			showLongMessage("Trip ended! Distance: " + trip.getDistance().getKilometers() + " km");
-	
-			if (place != null) {
-				showShortMessage("Starting place: " + place.getName() + " (" + place.getId() + ")");
-			}
+			
+			endTrip();
 			
 			// Save trip to database
 			long id = tripDB.addTrip(trip);
@@ -276,11 +278,17 @@ public class TripActivity extends Activity {
 		// Hide the button
 		okStartPlaceButton.setVisibility(View.INVISIBLE);
 
-		// Update the UI
-		switchStartPlaceView(newPlace.getName());
+		// Set the trip's start place.
+		trip.setStartPlace(newPlace);
 		
-		showLongMessage("Added place successfully. " + currentBestLocation.toString());
+		// Update the UI
+		switchStartPlaceView();
+		
+		showLongMessage("Added place successfully. " + newPlace.toString());
 	    
+		// Start the trip!
+		startTrip();
+		
 		// Update autocomplete
 		updatePlacesAutocomplete();
 	}
@@ -299,9 +307,9 @@ public class TripActivity extends Activity {
 	            Bundle bundle = message.getData();
 	            result = bundle.getString("address");
 
-	            if (mode == Mode.WAITING_FOR_LOCATION) {
+	            if (state == State.WAITING_FOR_LOCATION) {
 	            	startPlaceText.setText(result);
-	            } else if (mode == Mode.ENDED) {
+	            } else if (state == State.ENDED) {
 	            	endPlaceText.setText(result);
 	            }
 	            break;
@@ -331,10 +339,13 @@ public class TripActivity extends Activity {
 				// Choose it in our place box
 				startPlaceText.setText(nearestPlace.getName());
 				
+				// Set the trip's start place.
+				trip.setStartPlace(nearestPlace);
+				
 				// Begin the trip once we've got our first location information
 				startTrip();
 				
-				switchStartPlaceView(nearestPlace.getName());
+				switchStartPlaceView();
 			} else {
 				// If we can't, prompt the user for it, before beginning the trip
 				showLongMessage("Please enter a name for this location.");
@@ -354,7 +365,7 @@ public class TripActivity extends Activity {
 		
 		setStatus(currentBestLocation.toString());
 		
-		if (mode == Mode.STARTED) {
+		if (state == State.STARTED) {
 			// Get distance from current to new location in kilometers.
 			double dist = currentBestLocation.distanceTo(location) / 1000.0;
 			
@@ -367,13 +378,13 @@ public class TripActivity extends Activity {
 		}
 	}
 	
-	private void switchStartPlaceView(String name) {
+	private void switchStartPlaceView() {
 		// Switch the startPlace autocomplete with a plain textview,
 		// so the user can't change it anymore.
 	    ViewSwitcher switcher = (ViewSwitcher) findViewById(R.id.viewSwitcherStartPlace);
 	    switcher.showNext(); //or switcher.showPrevious();
 	    TextView startPlaceTextView = (TextView) switcher.findViewById(R.id.startPlaceTextView);
-	    startPlaceTextView.setText("Starting place: " + name);
+	    startPlaceTextView.setText("Starting place: " + trip.getStartPlace().getName());
 //	    startPlaceText.setEnabled(false); // TODO: disable keyboard?
 	}
 
