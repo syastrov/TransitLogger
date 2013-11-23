@@ -110,4 +110,23 @@
         android:onClick="onAddEndPlace"
         android:text="@string/add_place" />
 
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/labelDistance"
+        android:layout_below="@+id/ViewSwitcher01"
+        android:layout_marginTop="28dp"
+        android:text="Status"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/distanceText"
+        android:layout_alignTop="@+id/statusText"
+        android:onClick="onLookupAddress"
+        android:text="Lookup Address" />
+
 </RelativeLayout>

@@ -7,7 +7,7 @@ import android.util.Log;
 
 public class TripDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
     public static final String TABLE_TRIPS = "trips";
 
     public static final String COLUMN_ID = "_id";

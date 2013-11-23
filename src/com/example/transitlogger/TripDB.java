@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import com.example.transitlogger.model.Distance;
 import com.example.transitlogger.model.Place;
+import com.example.transitlogger.model.Point2D;
 import com.example.transitlogger.model.Trip;
 
 import android.content.ContentValues;
@@ -158,16 +159,15 @@ public class TripDB {
 
 	public Place getNearestPlace(double latitude, double longitude) {
 		// Query for all places within a bounding box of the coordinates.
-		PointF center = new PointF();
-		center.set((float) latitude, (float) longitude);
-		final double mult = 1; // mult = 1.1; is more reliable
+		Point2D center = new Point2D(latitude, longitude);
+		final double mult = 1.1; // mult = 1.1; is more reliable
 		final double radius = 1000; // in meters
-		PointF p1 = calculateDerivedPosition(center, mult * radius, 0);
-		PointF p2 = calculateDerivedPosition(center, mult * radius, 90);
-		PointF p3 = calculateDerivedPosition(center, mult * radius, 180);
-		PointF p4 = calculateDerivedPosition(center, mult * radius, 270);
+		Point2D p1 = calculateDerivedPosition(center, mult * radius, 0);
+		Point2D p2 = calculateDerivedPosition(center, mult * radius, 90);
+		Point2D p3 = calculateDerivedPosition(center, mult * radius, 180);
+		Point2D p4 = calculateDerivedPosition(center, mult * radius, 270);
 		
-    	String[] selectionArgs = {String.valueOf(p3.x),
+    	String[] selectionArgs = new String[]{String.valueOf(p3.x),
     			String.valueOf(p1.x),
     			String.valueOf(p2.y),
     			String.valueOf(p4.y)};
@@ -203,7 +203,7 @@ public class TripDB {
 			if (results.length > 0) {
 				float distance = results[0];
 				// Only consider this place if we are within its auto-snap range.
-				if (distance < place.getAutoSnapRange().getKilometers()) {
+				if (distance < place.getAutoSnapRange().getKilometers() * 1000.0) {
 					distanceMap.put(distance, place);
 				}
 			}
@@ -232,7 +232,7 @@ public class TripDB {
 	*            Bearing in degrees
 	* @return End-point from the source given the desired range and bearing.
 	*/
-	public static PointF calculateDerivedPosition(PointF point,
+	public static Point2D calculateDerivedPosition(Point2D point,
 	            double range, double bearing) {
         double EarthRadius = 6371000; // m
 
@@ -256,7 +256,7 @@ public class TripDB {
         lat = Math.toDegrees(lat);
         lon = Math.toDegrees(lon);
 
-        PointF newPoint = new PointF((float) lat, (float) lon);
+        Point2D newPoint = new Point2D((float) lat, (float) lon);
 
         return newPoint;
     }
