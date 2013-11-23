@@ -195,17 +195,12 @@ public class TripActivity extends Activity {
 		// Set the end date
 		trip.setToDate(new Date());
 		
-		Context context = getApplicationContext();
-		CharSequence text = "Trip ended! Distance: " + trip.getDistance().getKilometers() + " km";
-		int duration = Toast.LENGTH_SHORT;
-
-		Toast toast = Toast.makeText(context, text, duration);
-		toast.show();
+		showShortMessage("Trip ended! Distance: " + trip.getDistance().getKilometers() + " km");
 		
 		// Save trip to database
 		long id = tripDB.addTrip(trip);
 
-		Toast.makeText(context, "Trip added to DB with id: " + id, Toast.LENGTH_SHORT).show();		
+		showLongMessage("Trip added to DB with id: " + id);
 		
 		// TODO: Allow the distance to be editable now.
 		
@@ -228,18 +223,21 @@ public class TripActivity extends Activity {
 	public void onAddStartPlace(View view) {
 		String name = startPlace.getText().toString();
 		
+		// Check if we have a GPS location yet.
+		if (currentBestLocation == null) {
+			showLongMessage("Please wait until GPS location is acquired before adding a new place.");
+			return;
+		}
+		
 		// Check that this place name has not already been taken.
 		Place place = tripDB.getPlaceByName(name);
 		if (place != null) {
-			Context context = getApplicationContext();
-			CharSequence text = "Place already exists with that name!";
-			int duration = Toast.LENGTH_SHORT;
-
-			Toast toast = Toast.makeText(context, text, duration);
-			toast.show();
+			showLongMessage("Place already exists with that name!");
 		} else {
 			Place newPlace = new Place();
 			newPlace.setName(name);
+			newPlace.setLat(currentBestLocation.getLatitude());
+			newPlace.setLon(currentBestLocation.getLongitude());
 			tripDB.addPlace(newPlace);
 		}
 		
@@ -259,5 +257,21 @@ public class TripActivity extends Activity {
 		distanceText.setVisibility(View.VISIBLE);
 
 		distanceText.setText("0 km");
+	}
+	
+	public void showMessage(String message, int duration) {
+		Context context = getApplicationContext();
+		CharSequence text = (CharSequence) message;
+
+		Toast toast = Toast.makeText(context, text, duration);
+		toast.show();
+	}
+	
+	public void showShortMessage(String message) {
+		showMessage(message, Toast.LENGTH_SHORT);
+	}
+	
+	public void showLongMessage(String message) {
+		showMessage(message, Toast.LENGTH_LONG);
 	}
 }

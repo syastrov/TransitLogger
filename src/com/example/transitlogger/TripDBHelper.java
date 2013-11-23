@@ -22,11 +22,13 @@ public class TripDBHelper extends SQLiteOpenHelper {
     public static final String TABLE_PLACES = "places";
 	public static final String COLUMN_NAME = "name";
 	public static final String COLUMN_LAT = "lat";
+	public static final String COLUMN_LON = "lon";
     private static final String PLACES_TABLE_CREATE =
                 "CREATE TABLE " + TABLE_PLACES + " ("
         		+ COLUMN_ID + " integer primary key autoincrement"
         		+ "," + COLUMN_NAME + " tinytext not null"
         		+ "," + COLUMN_LAT + " float not null"
+        		+ "," + COLUMN_LON + " float not null"
         		+ ")";
     
     

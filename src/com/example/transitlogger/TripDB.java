@@ -23,7 +23,8 @@ public class TripDB {
 
 	private String[] allPlaceColumns = { TripDBHelper.COLUMN_ID,
 			TripDBHelper.COLUMN_NAME,
-			TripDBHelper.COLUMN_LAT };
+			TripDBHelper.COLUMN_LAT,
+			TripDBHelper.COLUMN_LON};
 	
 	
 	public TripDB(Context context) {
@@ -78,6 +79,7 @@ public class TripDB {
         ContentValues values = new ContentValues();
         values.put(TripDBHelper.COLUMN_NAME, place.getName());
         values.put(TripDBHelper.COLUMN_LAT, place.getLat());
+        values.put(TripDBHelper.COLUMN_LON, place.getLon());
         long insertId = database.insert(TripDBHelper.TABLE_PLACES, null,
             values);
         place.setId(insertId);
@@ -129,6 +131,7 @@ public class TripDB {
         place.setId(cursor.getLong(0));
         place.setName(cursor.getString(1));
         place.setLat(cursor.getFloat(2));
+        place.setLon(cursor.getFloat(3));
         return place;
     }
 }
