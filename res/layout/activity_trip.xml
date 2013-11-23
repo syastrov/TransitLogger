@@ -46,7 +46,7 @@
         android:layout_toLeftOf="@+id/addStartPlaceButton" >
 
         <AutoCompleteTextView
-            android:id="@+id/autoCompleteStartLocation"
+            android:id="@+id/autoCompleteStartPlace"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
@@ -63,7 +63,6 @@
             android:ems="10"
             android:text="TextView"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-
     </ViewSwitcher>
 
     <Button
@@ -74,6 +73,41 @@
         android:layout_alignBottom="@+id/viewSwitcherStartPlace"
         android:layout_alignParentRight="true"
         android:onClick="onAddStartPlace"
+        android:text="@string/add_place" />
+
+    <ViewSwitcher
+        android:id="@+id/ViewSwitcher01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/labelDistance"
+        android:layout_marginTop="47dp"
+        android:layout_toLeftOf="@+id/addEndPlaceButton" >
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteEndPlace"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:ems="10" />
+
+        <TextView
+            android:id="@+id/TextView01"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:ems="10"
+            android:text="TextView"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </ViewSwitcher>
+
+    <Button
+        android:id="@+id/addEndPlaceButton"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/ViewSwitcher01"
+        android:layout_alignLeft="@+id/addStartPlaceButton"
+        android:onClick="onAddEndPlace"
         android:text="@string/add_place" />
 
 </RelativeLayout>

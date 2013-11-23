@@ -22,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CursorAdapter;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -37,6 +38,8 @@ public class TripActivity extends Activity {
 	private AutoCompleteTextView startPlace;
 
     private Location currentBestLocation;
+
+	private AutoCompleteTextView endPlace;
 	
 	public LocationManager getLocationManager() {
 		return locationManager;
@@ -60,8 +63,9 @@ public class TripActivity extends Activity {
 
 		// Create a new trip.
 		trip = new Trip();
-		
-		startPlace = (AutoCompleteTextView) findViewById(R.id.autoCompleteStartLocation);
+
+		startPlace = (AutoCompleteTextView) findViewById(R.id.autoCompleteStartPlace);
+		endPlace = (AutoCompleteTextView) findViewById(R.id.autoCompleteEndPlace);
 		
 		setupLocationProvider();
 		
@@ -228,7 +232,14 @@ public class TripActivity extends Activity {
 	    TextView startPlaceTextView = (TextView) switcher.findViewById(R.id.startPlaceTextView);
 	    startPlaceTextView.setText("Starting place: " + newPlace.getName());
 		
+		showLongMessage("Added place successfully.");
+	    
 		updatePlacesAutocomplete();
+	}
+	
+	public void onAddEndPlace(View view) {
+		String name = endPlace.getText().toString();
+		// TODO
 	}
 	
 	
