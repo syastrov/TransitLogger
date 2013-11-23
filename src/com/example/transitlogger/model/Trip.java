@@ -15,16 +15,16 @@ public class Trip {
 		toDate = new Date();
 	}
 
-	public Place getFrom() {
+	public Place getStartPlace() {
 		return from;
 	}
-	public void setFrom(Place from) {
+	public void setStartPlace(Place from) {
 		this.from = from;
 	}
-	public Place getTo() {
+	public Place getEndPlace() {
 		return to;
 	}
-	public void setTo(Place to) {
+	public void setEndPlace(Place to) {
 		this.to = to;
 	}
 	public TripPurpose getPurpose() {

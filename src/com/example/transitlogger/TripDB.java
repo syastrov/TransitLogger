@@ -2,6 +2,7 @@ package com.example.transitlogger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -22,7 +23,9 @@ public class TripDB {
 	private SQLiteDatabase database;
 
 	private String[] allTripColumns = { TripDBHelper.COLUMN_ID,
-			TripDBHelper.COLUMN_DISTANCE };
+			TripDBHelper.COLUMN_DISTANCE,
+			TripDBHelper.COLUMN_START_PLACE_ID, 
+			TripDBHelper.COLUMN_END_PLACE_ID};
 	
 
 	private String[] allPlaceColumns = { TripDBHelper.COLUMN_ID,
@@ -45,7 +48,21 @@ public class TripDB {
 
     public long addTrip(Trip trip) {
         ContentValues values = new ContentValues();
+        
         values.put(TripDBHelper.COLUMN_DISTANCE, trip.getDistance().getKilometers());
+        
+        if (trip.getStartPlace() == null) {
+            values.put(TripDBHelper.COLUMN_START_PLACE_ID, "null");
+        } else {
+        	values.put(TripDBHelper.COLUMN_START_PLACE_ID, trip.getStartPlace().getId());
+        }
+        
+        if (trip.getEndPlace() == null) {
+            values.put(TripDBHelper.COLUMN_END_PLACE_ID, "null");
+        } else {
+        	values.put(TripDBHelper.COLUMN_END_PLACE_ID, trip.getEndPlace().getId());
+        }
+        
         long insertId = database.insert(TripDBHelper.TABLE_TRIPS, null,
             values);
         trip.setId(insertId);
@@ -185,15 +202,18 @@ public class TripDB {
 			Location.distanceBetween(latitude, longitude, place.getLat(), place.getLon(), results);
 			if (results.length > 0) {
 				float distance = results[0];
-		        distanceMap.put(distance, place);
+				// Only consider this place if we are within its auto-snap range.
+				if (distance < place.getAutoSnapRange().getKilometers()) {
+					distanceMap.put(distance, place);
+				}
 			}
 		}
         
         // Return the place with the lowest distance.
-        Float firstKey = distanceMap.firstKey();
-        if (firstKey != null) {
-        	return distanceMap.get(firstKey);        
-		} else {
+        try {
+	        Float firstKey = distanceMap.firstKey();	
+        	return distanceMap.get(firstKey);     
+		} catch (NoSuchElementException e) {
 			return null;
 		}
 	}

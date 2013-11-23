@@ -189,7 +189,11 @@ public class TripActivity extends Activity {
 		// Set the end date
 		trip.setToDate(new Date());
 		
-		showShortMessage("Trip ended! Distance: " + trip.getDistance().getKilometers() + " km");
+		Place place = tripDB.getPlaceByName(startPlace.getText().toString());
+		trip.setStartPlace(place);
+		
+		showShortMessage("Trip ended! Distance: " + trip.getDistance().getKilometers() + " km" +
+				" Starting place: " + place.getName() + " (" + place.getId() + ")");
 		
 		// Save trip to database
 		long id = tripDB.addTrip(trip);
