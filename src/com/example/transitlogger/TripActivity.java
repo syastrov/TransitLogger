@@ -1,8 +1,10 @@
 package com.example.transitlogger;
 
 import java.util.Date;
+import java.util.List;
 
 import com.example.transitlogger.model.Distance;
+import com.example.transitlogger.model.Place;
 import com.example.transitlogger.model.Trip;
 
 import android.location.Location;
@@ -16,16 +18,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class TripActivity extends Activity {
 	private Trip trip;
-	public TripDB tripDB;
+	
+	public static TripDB tripDB;
+	
 	private TextView distanceText;
 	private TextView labelDistance;
 	private LocationManager locationManager;
+	private AutoCompleteTextView startPlace;
 
     private Location currentBestLocation;
 	
@@ -46,13 +54,24 @@ public class TripActivity extends Activity {
 		labelDistance.setVisibility(View.GONE);
 		distanceText.setVisibility(View.GONE);
 
+	    tripDB = new TripDB(this);
+	    tripDB.open();
+
 		// Create a new trip.
 		trip = new Trip();
 		
-	    tripDB = new TripDB(this);
-	    tripDB.open();
+		startPlace = (AutoCompleteTextView) findViewById(R.id.autoCompleteStartLocation);
+		
+		updatePlacesAutocomplete();
 		
 		setupLocationProvider();
+	}
+	
+	protected void updatePlacesAutocomplete() {
+		List<Place> places = tripDB.getAllPlaces();
+		ArrayAdapter<Place> adapter = new ArrayAdapter<Place>(this,
+				android.R.layout.simple_list_item_1, places);
+		startPlace.setAdapter(adapter);
 	}
 
 	public void setupLocationProvider() {
@@ -204,6 +223,27 @@ public class TripActivity extends Activity {
 		Distance distance = trip.getDistance();
 		distance.setKilometers(distance.getKilometers() + dist);
 		distanceText.setText(String.format("%.2f km", distance.getKilometers()));
+	}
+	
+	public void onAddStartPlace(View view) {
+		String name = startPlace.getText().toString();
+		
+		// Check that this place name has not already been taken.
+		Place place = tripDB.getPlaceByName(name);
+		if (place != null) {
+			Context context = getApplicationContext();
+			CharSequence text = "Place already exists with that name!";
+			int duration = Toast.LENGTH_SHORT;
+
+			Toast toast = Toast.makeText(context, text, duration);
+			toast.show();
+		} else {
+			Place newPlace = new Place();
+			newPlace.setName(name);
+			tripDB.addPlace(newPlace);
+		}
+		
+		updatePlacesAutocomplete();
 	}
 	
 	public void onStartTrip(View view) {

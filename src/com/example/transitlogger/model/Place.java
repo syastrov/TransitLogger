@@ -40,4 +40,8 @@ public class Place {
 	public void setId(long id) {
 		this.id = id;
 	}
+	
+	public String toString() {
+		return getName();
+	}
 }

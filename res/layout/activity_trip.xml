@@ -38,4 +38,23 @@
         android:text="Medium Text"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <AutoCompleteTextView
+        android:id="@+id/autoCompleteStartLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/startStopTripButton"
+        android:layout_marginTop="32dp"
+        android:layout_toLeftOf="@+id/addStartPlaceButton"
+        android:ems="10" />
+
+    <Button
+        android:id="@+id/addStartPlaceButton"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/autoCompleteStartLocation"
+        android:layout_alignParentRight="true"
+        android:onClick="onAddStartPlace"
+        android:text="@string/add_place" />
+
 </RelativeLayout>

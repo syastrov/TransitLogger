@@ -12,11 +12,24 @@ public class TripDBHelper extends SQLiteOpenHelper {
 
     public static final String COLUMN_ID = "_id";
 	public static final String COLUMN_DISTANCE = "distance";
-    private static final String TRIP_TABLE_CREATE =
+    private static final String TRIPS_TABLE_CREATE =
                 "CREATE TABLE " + TABLE_TRIPS + " ("
-        		+ COLUMN_ID + " integer primary key autoincrement,"
-        		+ COLUMN_DISTANCE + " float not null"
+        		+ COLUMN_ID + " integer primary key autoincrement"
+        		+ "," + COLUMN_DISTANCE + " float not null"
         		+ ")";
+    
+    
+    public static final String TABLE_PLACES = "places";
+	public static final String COLUMN_NAME = "name";
+	public static final String COLUMN_LAT = "lat";
+    private static final String PLACES_TABLE_CREATE =
+                "CREATE TABLE " + TABLE_PLACES + " ("
+        		+ COLUMN_ID + " integer primary key autoincrement"
+        		+ "," + COLUMN_NAME + " tinytext not null"
+        		+ "," + COLUMN_LAT + " float not null"
+        		+ ")";
+    
+    
 	private static final String DATABASE_NAME = "TransitLogger";
 
     TripDBHelper(Context context) {
@@ -25,7 +38,8 @@ public class TripDBHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-        db.execSQL(TRIP_TABLE_CREATE);
+        db.execSQL(TRIPS_TABLE_CREATE);
+        db.execSQL(PLACES_TABLE_CREATE);
 	}
 
 	@Override
@@ -34,6 +48,7 @@ public class TripDBHelper extends SQLiteOpenHelper {
 	            + oldVersion + " to " + newVersion
 	            + ", which will destroy all old data");
 	        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRIPS);
+	        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLACES);
 	        onCreate(db);
 	}
 
