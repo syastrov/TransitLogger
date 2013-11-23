@@ -14,8 +14,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:onClick="onStartTrip"
-        android:text="@string/start_trip" />
+        android:onClick="onEndTrip"
+        android:text="@string/end_trip" />
 
     <TextView
         android:id="@+id/labelDistance"

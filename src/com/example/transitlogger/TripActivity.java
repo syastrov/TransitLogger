@@ -62,9 +62,19 @@ public class TripActivity extends Activity {
 		
 		startPlace = (AutoCompleteTextView) findViewById(R.id.autoCompleteStartLocation);
 		
+		setupLocationProvider();
+		
 		updatePlacesAutocomplete();
 		
-		setupLocationProvider();
+		// Show the distance information
+		labelDistance.setVisibility(View.VISIBLE);
+		distanceText.setVisibility(View.VISIBLE);
+
+		distanceText.setText("Waiting for GPS...");
+	}
+	
+	public void startTrip() {
+		trip.setFromDate(new Date());
 	}
 	
 	protected void updatePlacesAutocomplete() {
@@ -174,24 +184,8 @@ public class TripActivity extends Activity {
 			tripActivity.onEndTrip(v);
 		}
 	}
-	class StartTripClickListener implements OnClickListener {
-		private TripActivity tripActivity;
-
-		public StartTripClickListener(TripActivity tripActivity) {
-			this.tripActivity = tripActivity;
-		}
-		
-		public void onClick(View v) {
-			tripActivity.onStartTrip(v);
-		}
-	}
 	
 	public void onEndTrip(View view) {
-		// Change the button to "Start Trip"
-		Button startStopTripButton = (Button) findViewById(R.id.startStopTripButton);
-		startStopTripButton.setText(getString(R.string.start_trip));
-		startStopTripButton.setOnClickListener(new StartTripClickListener(this));
-		
 		// Set the end date
 		trip.setToDate(new Date());
 		
@@ -207,19 +201,7 @@ public class TripActivity extends Activity {
 		// Possibly, let them discard the trip somehow, rather than saving it
 	}
 	
-	public void updateLocation(Location location) {
-		if (currentBestLocation == null) {
-			currentBestLocation = location;
-		}
-		// Get distance from current to new location in kilometers
-		double dist = currentBestLocation.distanceTo(location) / 1000.0;
-		
-		Log.d(getClass().getName(), String.format("curLocation: %s\nnewLocation: %s", currentBestLocation, location));
-		Distance distance = trip.getDistance();
-		distance.setKilometers(distance.getKilometers() + dist);
-		distanceText.setText(String.format("%.2f km", distance.getKilometers()));
-	}
-	
+
 	public void onAddStartPlace(View view) {
 		String name = startPlace.getText().toString();
 		
@@ -244,19 +226,21 @@ public class TripActivity extends Activity {
 		updatePlacesAutocomplete();
 	}
 	
-	public void onStartTrip(View view) {
-		trip.setFromDate(new Date());
+	
+	public void updateLocation(Location location) {
+		if (currentBestLocation == null) {
+			currentBestLocation = location;
+			
+			// Begin the trip once we've got our first location information
+			startTrip();
+		}
+		// Get distance from current to new location in kilometers
+		double dist = currentBestLocation.distanceTo(location) / 1000.0;
 		
-		// Change the button to "End Trip"
-		Button startStopTripButton = (Button) findViewById(R.id.startStopTripButton);
-		startStopTripButton.setText(getString(R.string.end_trip));
-		startStopTripButton.setOnClickListener(new EndTripClickListener(this));
-		
-		// Show the distance information
-		labelDistance.setVisibility(View.VISIBLE);
-		distanceText.setVisibility(View.VISIBLE);
-
-		distanceText.setText("0 km");
+		Log.d(getClass().getName(), String.format("curLocation: %s\nnewLocation: %s", currentBestLocation, location));
+		Distance distance = trip.getDistance();
+		distance.setKilometers(distance.getKilometers() + dist);
+		distanceText.setText(String.format("%.2f km", distance.getKilometers()));
 	}
 	
 	public void showMessage(String message, int duration) {
