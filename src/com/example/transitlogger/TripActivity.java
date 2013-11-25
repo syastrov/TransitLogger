@@ -125,12 +125,12 @@ public class TripActivity extends Activity {
 	}
 	
 	public void startTrip() {
-		trip.setFromDate(new Date());
+		trip.setStartDate(new Date());
 		setState(State.STARTED);
 	}
 	
 	public void endTrip() {
-		trip.setToDate(new Date());
+		trip.setEndDate(new Date());
 		
 		// Save trip to database
 		long id = tripDB.addTrip(trip);
