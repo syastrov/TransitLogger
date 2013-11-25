@@ -314,12 +314,7 @@ public class TripActivity extends Activity {
 			return;
 		}
 		
-		// Create the new place and add it to the DB
-		Place newPlace = new Place();
-		newPlace.setName(name);
-		newPlace.setLat(currentBestLocation.getLatitude());
-		newPlace.setLon(currentBestLocation.getLongitude());
-		tripDB.addPlace(newPlace);
+		Place newPlace = addCurrentPlace(name);
 		
 		// Hide the button
 		okStartPlaceButton.setVisibility(View.INVISIBLE);
@@ -329,14 +324,24 @@ public class TripActivity extends Activity {
 		
 		// Update the UI
 		switchStartPlaceView();
-		
-		showLongMessage("Added place successfully. " + newPlace.toString());
 	    
 		// Start the trip!
 		startTrip();
 		
 		// Update autocomplete
 		updatePlacesAutocomplete();
+	}
+
+	private Place addCurrentPlace(String name) {
+		// Create the new place and add it to the DB
+		Place newPlace = new Place();
+		newPlace.setName(name);
+		newPlace.setLat(currentBestLocation.getLatitude());
+		newPlace.setLon(currentBestLocation.getLongitude());
+		tripDB.addPlace(newPlace);
+		
+//		showLongMessage("Added place successfully. " + newPlace.toString());
+		return newPlace;
 	}
 	
 	public void onOKEndPlace(View view) {
@@ -349,12 +354,7 @@ public class TripActivity extends Activity {
 			return;
 		}
 		
-		// Create the new place and add it to the DB
-		Place newPlace = new Place();
-		newPlace.setName(name);
-		newPlace.setLat(currentBestLocation.getLatitude());
-		newPlace.setLon(currentBestLocation.getLongitude());
-		tripDB.addPlace(newPlace);
+		Place newPlace = addCurrentPlace(name);
 		
 		// Hide the button
 		okEndPlaceButton.setVisibility(View.INVISIBLE);
@@ -365,7 +365,7 @@ public class TripActivity extends Activity {
 		// Update the UI
 		switchEndPlaceView();
 		
-		showLongMessage("Added place successfully. " + newPlace.toString());
+//		showLongMessage("Added place successfully. " + newPlace.toString());
 	    
 		// End the trip!
 		endTrip();
