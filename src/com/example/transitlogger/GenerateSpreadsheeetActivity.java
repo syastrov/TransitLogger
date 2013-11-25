@@ -2,15 +2,21 @@ package com.example.transitlogger;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 import jxl.read.biff.BiffException;
 import jxl.write.WriteException;
 
 import com.example.transitlogger.excel.SpreadsheetFiller;
+import com.example.transitlogger.model.Trip;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
+import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -35,7 +41,11 @@ public class GenerateSpreadsheeetActivity extends Activity {
 	
 	public void onGenerate(View view) {
 	    File path = Utils.getDocumentsDirectory();
-	    File outputFile = new File(path, "output.xls");
+	    
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+		String dateString = format.format(new Date());
+		
+	    File outputFile = new File(path, "kørsel-" + dateString + ".xls");
 
         // Make sure the directory exists.
         path.mkdirs();
@@ -45,6 +55,11 @@ public class GenerateSpreadsheeetActivity extends Activity {
         File inputFile = new File(Utils.getFormsDirectory(), "korsel.xls");
         
 		SpreadsheetFiller filler = new SpreadsheetFiller(inputFile, outputFile);
+		
+	    TripDB tripDB = new TripDB(this);
+	    tripDB.open();
+
+    	filler.setTrips(tripDB.getAllTrips());
 		
 		Toast.makeText(this, "Please wait...", Toast.LENGTH_LONG).show();
 		
@@ -65,6 +80,11 @@ public class GenerateSpreadsheeetActivity extends Activity {
 		} finally {
 			if (outputFile.exists()) {
 				Toast.makeText(this, "Generated spreadsheet " + outputFile + " successfully.", Toast.LENGTH_LONG).show();			
+				
+				Intent intent = new Intent();
+				intent.setAction(android.content.Intent.ACTION_VIEW);
+				intent.setDataAndType(Uri.fromFile(outputFile), "application/vnd.ms-excel");
+				startActivity(intent); 
 			}
 		}
 	}
