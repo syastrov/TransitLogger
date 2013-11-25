@@ -1,5 +1,6 @@
 package com.example.transitlogger;
 
+import java.io.File;
 import java.io.IOException;
 
 import jxl.read.biff.BiffException;
@@ -8,7 +9,9 @@ import jxl.write.WriteException;
 import com.example.transitlogger.excel.SpreadsheetFiller;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
@@ -19,6 +22,8 @@ public class GenerateSpreadsheeetActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_generate_spreadsheeet);
+		
+		Utils.copyAssets(this);
 	}
 
 	@Override
@@ -29,8 +34,17 @@ public class GenerateSpreadsheeetActivity extends Activity {
 	}
 	
 	public void onGenerate(View view) {
-		String outputFileName = "output.xls"; 
-		SpreadsheetFiller filler = new SpreadsheetFiller("korsel.xls", outputFileName);
+	    File path = Environment.getExternalStoragePublicDirectory(
+	            Environment.DIRECTORY_DOCUMENTS);
+	    File outputFile = new File(path, "output.xls");
+
+        // Make sure the directory exists.
+        path.mkdirs();
+	    
+        Log.w("ASD", outputFile.getName());
+        
+		SpreadsheetFiller filler = new SpreadsheetFiller("korsel.xls", outputFile.getName());
+		
 		try {
 			filler.readWrite();
 		} catch (BiffException e) {
@@ -46,7 +60,7 @@ public class GenerateSpreadsheeetActivity extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			Toast.makeText(this, "Generated spreadsheet " + outputFileName + "successfully.", Toast.LENGTH_LONG).show();
+//			Toast.makeText(this, "Generated spreadsheet " + outputFileName + "successfully.", Toast.LENGTH_LONG).show();
 		}
 	}
 
