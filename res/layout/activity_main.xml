@@ -18,4 +18,14 @@
         android:onClick="newTrip"
         android:text="@string/new_trip" />
 
+    <Button
+        android:id="@+id/createSpreadsheetButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/newTripButton"
+        android:layout_below="@+id/newTripButton"
+        android:layout_marginTop="40dp"
+        android:onClick="createSpreadsheet"
+        android:text="@string/create_spreadsheet" />
+
 </RelativeLayout>

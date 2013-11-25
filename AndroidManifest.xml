@@ -7,9 +7,10 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="18" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -28,6 +29,16 @@
         <activity
             android:name="com.example.transitlogger.TripActivity"
             android:label="@string/title_activity_trip" >
+        </activity>
+        <activity
+            android:name="com.example.transitlogger.GenerateSpreadsheetActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_generate_spreadsheet"
+            android:theme="@style/FullscreenTheme" >
+        </activity>
+        <activity
+            android:name="com.example.transitlogger.GenerateSpreadsheeetActivity"
+            android:label="@string/title_activity_generate_spreadsheeet" >
         </activity>
     </application>
 
