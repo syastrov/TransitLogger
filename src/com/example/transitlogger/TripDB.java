@@ -16,7 +16,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.PointF;
 import android.location.Location;
 
 public class TripDB {

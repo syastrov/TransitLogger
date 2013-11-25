@@ -55,6 +55,8 @@ public class TripActivity extends Activity {
 	
     private Location currentBestLocation = null;
 
+	private LocationListener locationListener;
+
 	
 	public LocationManager getLocationManager() {
 		return locationManager;
@@ -98,7 +100,6 @@ public class TripActivity extends Activity {
 		okEndPlaceButton.setVisibility(View.INVISIBLE);
 		
 		// Hide the end place autocomplete
-		endPlaceText = (AutoCompleteTextView) findViewById(R.id.autoCompleteEndPlace);
 		endPlaceText.setVisibility(View.INVISIBLE);
 
 		setState(State.WAITING_FOR_LOCATION);
@@ -117,9 +118,9 @@ public class TripActivity extends Activity {
 			distanceText.setVisibility(View.VISIBLE);
 			break;
 		case ENDED:
-			// Show the end place controls
-			okEndPlaceButton.setVisibility(View.VISIBLE);
-			endPlaceText.setVisibility(View.VISIBLE);
+			break;
+		case AFTER_ENDED:
+			break;
 		}
 	}
 	
@@ -130,6 +131,12 @@ public class TripActivity extends Activity {
 	
 	public void endTrip() {
 		trip.setToDate(new Date());
+		
+		// Save trip to database
+		long id = tripDB.addTrip(trip);
+
+		showLongMessage("Trip saved to DB with id: " + id);
+		
 		setState(State.ENDED);
 	}
 	
@@ -138,14 +145,23 @@ public class TripActivity extends Activity {
 		ArrayAdapter<Place> adapter = new ArrayAdapter<Place>(this,
 				android.R.layout.simple_list_item_1, places);
 		startPlaceText.setAdapter(adapter);
+		endPlaceText.setAdapter(adapter);
 	}
 
+
+	public void shutdownLocationProvider() {
+		// Acquire a reference to the system Location Manager
+		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+		locationManager.removeUpdates(locationListener);
+	}
+	
 	public void setupLocationProvider() {
 		// Acquire a reference to the system Location Manager
 		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
 		// Define a listener that responds to location updates
-		LocationListener locationListener = new LocationListener() {
+		locationListener = new LocationListener() {
 			public void onLocationChanged(Location location) {
 				// Called when a new location is found by the network location provider.
 				// Only update the location if it's better
@@ -218,8 +234,10 @@ public class TripActivity extends Activity {
 		    }
 		  };
 
+		final float minDistance = 5.0f; // meters
+		  
 		// Register the listener with the Location Manager to receive location updates
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, minDistance, locationListener);
 	}
 	
 	@Override
@@ -230,25 +248,53 @@ public class TripActivity extends Activity {
 	}
 	
 	public void onEndTrip(View view) {
-		if (state == state.STARTED) {
+		shutdownLocationProvider();
+		
+		if (state == State.STARTED) {
 			showLongMessage("Trip ended! Distance: " + trip.getDistance().getKilometers() + " km");
-			
-			endTrip();
-			
-			// Save trip to database
-			long id = tripDB.addTrip(trip);
 	
-			showLongMessage("Trip added to DB with id: " + id);
+			// Auto-select the start place if we can
+			Place nearestPlace = findNearestPlace(currentBestLocation);
+			if (nearestPlace != null) {
+				// Choose it in our place box
+				endPlaceText.setText(nearestPlace.getName());
+				
+				// Set the trip's end place.
+				trip.setEndPlace(nearestPlace);
+				
+				// End the trip!
+				endTrip();
+				
+				switchEndPlaceView();
+				
+				setState(State.AFTER_ENDED);
+			} else {
+				// If we can't, prompt the user for it, before ending the trip
+				showLongMessage("Please enter a name for this location.");
+				
+				// Show the end place OK button
+				okEndPlaceButton.setVisibility(View.VISIBLE);
+				
+				// Show the end place text field
+				endPlaceText.setVisibility(View.VISIBLE);
+				
+				if (AppStatus.isOnline(this)) {
+					// Try to get the address through reverse geocode of the coordinates.
+					GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
+				}
+			}
 		}
 		
 		// TODO: Allow the distance to be editable now.
+		// TODO: Possibly, let them discard the trip somehow, rather than saving it
 		
-		// Possibly, let them discard the trip somehow, rather than saving it
-		
-		// Go back to main screen
-	    Intent intent = new Intent(this, MainActivity.class);
-	    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	    startActivity(intent);
+		// Go back if we haven't started yet, or if we've completely ended the trip.
+		if (state == State.WAITING_FOR_LOCATION || state == State.AFTER_ENDED) {
+			// Go back to main screen
+		    Intent intent = new Intent(this, MainActivity.class);
+		    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		    startActivity(intent);
+		}
 	}
 	
 
@@ -295,7 +341,39 @@ public class TripActivity extends Activity {
 	
 	public void onOKEndPlace(View view) {
 		String name = endPlaceText.getText().toString();
-		// TODO
+		
+		// Check that this place name has not already been taken.
+		Place place = tripDB.getPlaceByName(name);
+		if (place != null) {
+			showLongMessage("Place already exists with that name. Please choose another name.");
+			return;
+		}
+		
+		// Create the new place and add it to the DB
+		Place newPlace = new Place();
+		newPlace.setName(name);
+		newPlace.setLat(currentBestLocation.getLatitude());
+		newPlace.setLon(currentBestLocation.getLongitude());
+		tripDB.addPlace(newPlace);
+		
+		// Hide the button
+		okEndPlaceButton.setVisibility(View.INVISIBLE);
+
+		// Set the trip's end place.
+		trip.setEndPlace(newPlace);
+		
+		// Update the UI
+		switchEndPlaceView();
+		
+		showLongMessage("Added place successfully. " + newPlace.toString());
+	    
+		// End the trip!
+		endTrip();
+
+		setState(State.AFTER_ENDED);
+		
+		// Update autocomplete
+		updatePlacesAutocomplete();
 	}
 	
 	private class GeocoderHandler extends Handler {
@@ -308,9 +386,13 @@ public class TripActivity extends Activity {
 	            result = bundle.getString("address");
 
 	            if (state == State.WAITING_FOR_LOCATION) {
-	            	startPlaceText.setText(result);
+	            	if (startPlaceText.getText().toString().trim().length() == 0) {
+	            		startPlaceText.setText(result);
+	            	}
 	            } else if (state == State.ENDED) {
-	            	endPlaceText.setText(result);
+	            	if (endPlaceText.getText().toString().trim().length() == 0) {
+	            		endPlaceText.setText(result);
+	            	}
 	            }
 	            break;
 	        default:
@@ -381,10 +463,22 @@ public class TripActivity extends Activity {
 	private void switchStartPlaceView() {
 		// Switch the startPlace autocomplete with a plain textview,
 		// so the user can't change it anymore.
+		startPlaceText.setVisibility(View.INVISIBLE);
 	    ViewSwitcher switcher = (ViewSwitcher) findViewById(R.id.viewSwitcherStartPlace);
 	    switcher.showNext(); //or switcher.showPrevious();
 	    TextView startPlaceTextView = (TextView) switcher.findViewById(R.id.startPlaceTextView);
 	    startPlaceTextView.setText("Starting place: " + trip.getStartPlace().getName());
+//	    startPlaceText.setEnabled(false); // TODO: disable keyboard?
+	}
+	
+	private void switchEndPlaceView() {
+		// Switch the startPlace autocomplete with a plain textview,
+		// so the user can't change it anymore.
+		endPlaceText.setVisibility(View.INVISIBLE);
+	    ViewSwitcher switcher = (ViewSwitcher) findViewById(R.id.viewSwitcherEndPlace);
+	    switcher.showNext(); //or switcher.showPrevious();
+	    TextView endPlaceTextView = (TextView) switcher.findViewById(R.id.endPlaceTextView);
+	    endPlaceTextView.setText("Ending place: " + trip.getEndPlace().getName());
 //	    startPlaceText.setEnabled(false); // TODO: disable keyboard?
 	}
 
