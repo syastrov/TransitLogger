@@ -13,10 +13,15 @@ import android.util.Log;
 
 public class Utils {
 	public static void copyAssets(Context context) {
+		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
+		    Log.w(Utils.class.getName(), "External SD card not mounted");
+		}
+		
 		AssetManager assetManager = context.getAssets();
 		String[] files = null;
+		String baseDir = "forms";
 		try {
-			files = assetManager.list("forms");
+			files = assetManager.list(baseDir);
 		} catch (IOException e) {
 			Log.e("tag", "Failed to get asset file list.", e);
 		}
@@ -24,7 +29,7 @@ public class Utils {
 			InputStream in = null;
 			OutputStream out = null;
 			try {
-				in = assetManager.open(filename);
+				in = assetManager.open(new File(baseDir, filename).getPath());
 				File outFile = new File(
 						Environment.getExternalStorageDirectory(), filename);
 				if (!outFile.exists()) {

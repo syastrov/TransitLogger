@@ -41,9 +41,9 @@ public class GenerateSpreadsheeetActivity extends Activity {
         // Make sure the directory exists.
         path.mkdirs();
 	    
-        Log.w("ASD", outputFile.getName());
+        Log.w("transitlogger", outputFile.getName());
         
-		SpreadsheetFiller filler = new SpreadsheetFiller("korsel.xls", outputFile.getName());
+		SpreadsheetFiller filler = new SpreadsheetFiller(new File("forms/korsel.xls"), outputFile);
 		
 		try {
 			filler.readWrite();

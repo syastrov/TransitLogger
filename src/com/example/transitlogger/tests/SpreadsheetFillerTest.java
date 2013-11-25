@@ -1,5 +1,6 @@
 package com.example.transitlogger.tests;
 
+import java.io.File;
 import java.io.IOException;
 
 import com.example.transitlogger.excel.SpreadsheetFiller;
@@ -13,8 +14,8 @@ public class SpreadsheetFillerTest extends TestCase {
 	private SpreadsheetFiller filler;
 
 	protected void setUp() throws Exception {
-		filler = new SpreadsheetFiller("korsel.xls",
-				"output.xls");
+		filler = new SpreadsheetFiller(new File("korsel.xls"),
+				new File("output.xls"));
 	}
 	
 	public void testReadWrite() {

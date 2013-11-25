@@ -82,9 +82,9 @@ public class SpreadsheetFiller {
 	 * @param output
 	 * @param input
 	 */
-	public SpreadsheetFiller(String input, String output) {
-		inputWorkbook = new File(input);
-		outputWorkbook = new File(output);
+	public SpreadsheetFiller(File input, File output) {
+		inputWorkbook = input;
+		outputWorkbook = output;
 //		logger.setSuppressWarnings(Boolean.getBoolean("jxl.nowarnings"));
 		logger.info("Input file:  " + input);
 		logger.info("Output file:  " + output);
