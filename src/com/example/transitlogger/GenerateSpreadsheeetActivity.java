@@ -21,7 +21,7 @@ public class GenerateSpreadsheeetActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_generate_spreadsheeet);
+		setContentView(R.layout.activity_generate_spreadsheet);
 		
 		Utils.copyAssets(this);
 	}
