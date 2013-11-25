@@ -1,0 +1,14 @@
+Use GPS Status Listener to determine if we have a GPS enabled.
+Refactor UI code
+
+List/edit trips
+List/edit places
+
+Spreadsheet filler
+	Import Java Excel Library
+	Load/process template
+	Replace template variables (e.g. $distance)
+	Save to disk
+	Test implementation
+
+Unit Tests
