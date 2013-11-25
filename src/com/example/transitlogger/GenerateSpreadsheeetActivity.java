@@ -34,8 +34,7 @@ public class GenerateSpreadsheeetActivity extends Activity {
 	}
 	
 	public void onGenerate(View view) {
-	    File path = Environment.getExternalStoragePublicDirectory(
-	            Environment.DIRECTORY_DOCUMENTS);
+	    File path = Utils.getDocumentsDirectory();
 	    File outputFile = new File(path, "output.xls");
 
         // Make sure the directory exists.
@@ -43,7 +42,11 @@ public class GenerateSpreadsheeetActivity extends Activity {
 	    
         Log.w("transitlogger", outputFile.getName());
         
-		SpreadsheetFiller filler = new SpreadsheetFiller(new File("forms/korsel.xls"), outputFile);
+        File inputFile = new File(Utils.getFormsDirectory(), "korsel.xls");
+        
+		SpreadsheetFiller filler = new SpreadsheetFiller(inputFile, outputFile);
+		
+		Toast.makeText(this, "Please wait...", Toast.LENGTH_LONG).show();
 		
 		try {
 			filler.readWrite();
@@ -60,7 +63,9 @@ public class GenerateSpreadsheeetActivity extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-//			Toast.makeText(this, "Generated spreadsheet " + outputFileName + "successfully.", Toast.LENGTH_LONG).show();
+			if (outputFile.exists()) {
+				Toast.makeText(this, "Generated spreadsheet " + outputFile + " successfully.", Toast.LENGTH_LONG).show();			
+			}
 		}
 	}
 

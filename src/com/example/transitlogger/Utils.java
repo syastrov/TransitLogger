@@ -12,6 +12,12 @@ import android.os.Environment;
 import android.util.Log;
 
 public class Utils {
+	public static File getFormsDirectory() {
+		File outputDir = new File(Environment.getExternalStorageDirectory(), "TransitLogger/forms");
+		outputDir.mkdirs();
+		return outputDir;
+	}
+	
 	public static void copyAssets(Context context) {
 		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
 		    Log.w(Utils.class.getName(), "External SD card not mounted");
@@ -30,8 +36,8 @@ public class Utils {
 			OutputStream out = null;
 			try {
 				in = assetManager.open(new File(baseDir, filename).getPath());
-				File outFile = new File(
-						Environment.getExternalStorageDirectory(), filename);
+				File outputDir = getFormsDirectory();
+				File outFile = new File(outputDir, filename);
 				if (!outFile.exists()) {
 
 					out = new FileOutputStream(outFile);
@@ -55,5 +61,11 @@ public class Utils {
 		while ((read = in.read(buffer)) != -1) {
 			out.write(buffer, 0, read);
 		}
+	}
+
+	public static File getDocumentsDirectory() {
+		File path = new File (Environment.getExternalStoragePublicDirectory(""), "TransitLogger");
+		path.mkdirs();
+		return path;
 	}
 }
