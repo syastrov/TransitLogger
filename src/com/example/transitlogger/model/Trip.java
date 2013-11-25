@@ -39,16 +39,16 @@ public class Trip {
 	public void setDistance(Distance distance) {
 		this.distance = distance;
 	}
-	public Date getFromDate() {
+	public Date getStartDate() {
 		return fromDate;
 	}
-	public void setFromDate(Date fromDate) {
+	public void setStartDate(Date fromDate) {
 		this.fromDate = fromDate;
 	}
-	public Date getToDate() {
+	public Date getEndDate() {
 		return toDate;
 	}
-	public void setToDate(Date toDate) {
+	public void setEndDate(Date toDate) {
 		this.toDate = toDate;
 	}
 	public long getId() {

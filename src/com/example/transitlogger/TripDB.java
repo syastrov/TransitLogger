@@ -1,6 +1,7 @@
 package com.example.transitlogger;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
@@ -17,6 +18,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
+import android.text.format.DateFormat;
 
 public class TripDB {
 	private TripDBHelper dbHelper;
@@ -25,7 +27,9 @@ public class TripDB {
 	private String[] allTripColumns = { TripDBHelper.COLUMN_ID,
 			TripDBHelper.COLUMN_DISTANCE,
 			TripDBHelper.COLUMN_START_PLACE_ID, 
-			TripDBHelper.COLUMN_END_PLACE_ID};
+			TripDBHelper.COLUMN_END_PLACE_ID,
+			TripDBHelper.COLUMN_START_DATE,
+			TripDBHelper.COLUMN_END_DATE};
 	
 
 	private String[] allPlaceColumns = { TripDBHelper.COLUMN_ID,
@@ -62,6 +66,9 @@ public class TripDB {
         } else {
         	values.put(TripDBHelper.COLUMN_END_PLACE_ID, trip.getEndPlace().getId());
         }
+
+        values.put(TripDBHelper.COLUMN_START_DATE, trip.getStartDate().getTime());
+        values.put(TripDBHelper.COLUMN_END_DATE, trip.getEndDate().getTime());
         
         long insertId = database.insert(TripDBHelper.TABLE_TRIPS, null,
             values);
@@ -90,6 +97,15 @@ public class TripDB {
         Trip trip = new Trip();
         trip.setId(cursor.getLong(0));
         trip.setDistance(new Distance(cursor.getFloat(1)));
+        
+        long startPlaceId = cursor.getLong(2);
+        long endPlaceId = cursor.getLong(3);
+        trip.setStartPlace(getPlace(startPlaceId));
+        trip.setEndPlace(getPlace(endPlaceId));
+
+        trip.setStartDate(new Date(cursor.getLong(4)));
+        trip.setEndDate(new Date(cursor.getLong(5)));
+        
         return trip;
       }
     
@@ -130,6 +146,27 @@ public class TripDB {
      * @param name
      * @return
      */
+    public Place getPlace(long id) {
+    	String[] selectionArgs = {String.valueOf(id)};
+        Cursor cursor = database.query(TripDBHelper.TABLE_PLACES,
+        		allPlaceColumns, TripDBHelper.COLUMN_ID + " = ?", selectionArgs, null, null, null);
+
+        cursor.moveToFirst();
+        
+        Place place = null;
+        if (!cursor.isAfterLast()) {
+            place = cursorToPlace(cursor);
+        }
+        // make sure to close the cursor
+        cursor.close();
+        return place;
+    }
+    
+    /**
+     * Get a place by its name, returning null if it does not exist.
+     * @param name
+     * @return
+     */
     public Place getPlaceByName(String name) {
     	String[] selectionArgs = {name};
         Cursor cursor = database.query(TripDBHelper.TABLE_PLACES,
@@ -138,9 +175,8 @@ public class TripDB {
         cursor.moveToFirst();
         
         Place place = null;
-        while (!cursor.isAfterLast()) {
-          place = cursorToPlace(cursor);
-          cursor.moveToNext();
+        if (!cursor.isAfterLast()) {
+        	place = cursorToPlace(cursor);
         }
         // make sure to close the cursor
         cursor.close();

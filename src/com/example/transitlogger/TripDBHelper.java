@@ -7,19 +7,27 @@ import android.util.Log;
 
 public class TripDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     public static final String TABLE_TRIPS = "trips";
 
     public static final String COLUMN_ID = "_id";
 	public static final String COLUMN_DISTANCE = "distance";
 	public static final String COLUMN_START_PLACE_ID = "start_place_id";
 	public static final String COLUMN_END_PLACE_ID = "end_place_id";
+
+	public static final String COLUMN_START_DATE = "start_date";
+	public static final String COLUMN_END_DATE = "end_date";
+	
     private static final String TRIPS_TABLE_CREATE =
                 "CREATE TABLE " + TABLE_TRIPS + " ("
         		+ COLUMN_ID + " integer primary key autoincrement"
         		+ "," + COLUMN_DISTANCE + " float not null"
+        		
         		+ "," + COLUMN_START_PLACE_ID + " integer"
         		+ "," + COLUMN_END_PLACE_ID + " integer"
+        		
+        		+ "," + COLUMN_START_DATE + " integer"
+        		+ "," + COLUMN_END_DATE + " integer"
         		+ ")";
     
     
@@ -30,7 +38,7 @@ public class TripDBHelper extends SQLiteOpenHelper {
     private static final String PLACES_TABLE_CREATE =
                 "CREATE TABLE " + TABLE_PLACES + " ("
         		+ COLUMN_ID + " integer primary key autoincrement"
-        		+ "," + COLUMN_NAME + " tinytext not null"
+        		+ "," + COLUMN_NAME + " text not null"
         		+ "," + COLUMN_LAT + " float not null"
         		+ "," + COLUMN_LON + " float not null"
         		+ ")";
