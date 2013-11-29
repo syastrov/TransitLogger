@@ -10,11 +10,9 @@ public class AppStatus {
         try {
         	ConnectivityManager connectivityManager = (ConnectivityManager)
             		context.getSystemService(Context.CONNECTIVITY_SERVICE);
-
+        	
 	        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-	        boolean connected = networkInfo != null &&
-	                networkInfo.isConnected();
-	        return connected;
+	        return networkInfo != null && networkInfo.isConnected();
         } catch (Exception e) {
             System.out.println("CheckConnectivity Exception: " + e.getMessage());
             Log.v("connectivity", e.toString());

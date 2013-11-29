@@ -120,6 +120,8 @@ public class TripActivity extends Activity {
 		case ENDED:
 			break;
 		case AFTER_ENDED:
+			Button endTripButton = (Button) findViewById(R.id.endTripButton);
+			endTripButton.setVisibility(View.INVISIBLE);
 			break;
 		}
 	}
@@ -132,15 +134,11 @@ public class TripActivity extends Activity {
 	public void endTrip() {
 		trip.setEndDate(new Date());
 		
-		// Save trip to database
-		long id = tripDB.addTrip(trip);
-
-		showLongMessage("Trip saved to DB with id: " + id);
-		
 		setState(State.ENDED);
 	}
 	
 	protected void updatePlacesAutocomplete() {
+		
 		List<Place> places = tripDB.getAllPlaces();
 		ArrayAdapter<Place> adapter = new ArrayAdapter<Place>(this,
 				android.R.layout.simple_list_item_1, places);
@@ -250,6 +248,14 @@ public class TripActivity extends Activity {
 	public void onEndTrip(View view) {
 		shutdownLocationProvider();
 		
+		// Go back if we haven't started yet, or if we've completely ended the trip.
+		if (state == State.WAITING_FOR_LOCATION || state == State.AFTER_ENDED) {
+			// Go back to main screen
+		    Intent intent = new Intent(this, MainActivity.class);
+		    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		    startActivity(intent);
+		}
+		
 		if (state == State.STARTED) {
 			showLongMessage("Trip ended! Distance: " + trip.getDistance().getKilometers() + " km");
 	
@@ -265,10 +271,18 @@ public class TripActivity extends Activity {
 				// End the trip!
 				endTrip();
 				
+				// Save trip to database
+				long id = tripDB.addTrip(trip);
+
+				showLongMessage("Trip saved to DB with id: " + id);
+
 				switchEndPlaceView();
 				
 				setState(State.AFTER_ENDED);
 			} else {
+				// End the trip!
+				endTrip();
+				
 				// If we can't, prompt the user for it, before ending the trip
 				showLongMessage("Please enter a name for this location.");
 				
@@ -279,27 +293,21 @@ public class TripActivity extends Activity {
 				endPlaceText.setVisibility(View.VISIBLE);
 				
 				if (AppStatus.isOnline(this)) {
+					setStatus("Looking up address...");
 					// Try to get the address through reverse geocode of the coordinates.
 					GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
 				}
 			}
 		}
-		
-		// TODO: Allow the distance to be editable now.
-		// TODO: Possibly, let them discard the trip somehow, rather than saving it
-		
-		// Go back if we haven't started yet, or if we've completely ended the trip.
-		if (state == State.WAITING_FOR_LOCATION || state == State.AFTER_ENDED) {
-			// Go back to main screen
-		    Intent intent = new Intent(this, MainActivity.class);
-		    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		    startActivity(intent);
-		}
 	}
 	
 
 	public void onOKStartPlace(View view) {
-		String name = startPlaceText.getText().toString();
+		String name = startPlaceText.getText().toString().trim();
+		
+		if (name.length() == 0) {
+			return;
+		}
 		
 		// Check if we have a GPS location yet.
 		if (currentBestLocation == null) {
@@ -345,7 +353,11 @@ public class TripActivity extends Activity {
 	}
 	
 	public void onOKEndPlace(View view) {
-		String name = endPlaceText.getText().toString();
+		String name = endPlaceText.getText().toString().trim();
+		
+		if (name.length() == 0) {
+			return;
+		}
 		
 		// Check that this place name has not already been taken.
 		Place place = tripDB.getPlaceByName(name);
@@ -366,10 +378,12 @@ public class TripActivity extends Activity {
 		switchEndPlaceView();
 		
 //		showLongMessage("Added place successfully. " + newPlace.toString());
-	    
-		// End the trip!
-		endTrip();
+		
+		// Save trip to database
+		long id = tripDB.addTrip(trip);
 
+		showLongMessage("Trip saved to DB with id: " + id);
+		
 		setState(State.AFTER_ENDED);
 		
 		// Update autocomplete
@@ -394,9 +408,12 @@ public class TripActivity extends Activity {
 	            		endPlaceText.setText(result);
 	            	}
 	            }
+	            
+	            setStatus("Found address.");
 	            break;
 	        default:
 	            result = "Couldn't get address.";
+	            setStatus(result);
 	        }
 	    }   
 	}
@@ -405,6 +422,7 @@ public class TripActivity extends Activity {
 		if (currentBestLocation != null) {
 			// reverse geocode
 			if (AppStatus.isOnline(this)) {
+				setStatus("Looking up address...");
 				// Try to get the address through reverse geocode of the coordinates.
 				GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
 			}
@@ -439,6 +457,7 @@ public class TripActivity extends Activity {
 				startPlaceText.setVisibility(View.VISIBLE);
 				
 				if (AppStatus.isOnline(this)) {
+					setStatus("Looking up address...");
 					// Try to get the address through reverse geocode of the coordinates.
 					GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
 				}

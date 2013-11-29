@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
@@ -84,7 +85,12 @@ public class GenerateSpreadsheeetActivity extends Activity {
 				Intent intent = new Intent();
 				intent.setAction(android.content.Intent.ACTION_VIEW);
 				intent.setDataAndType(Uri.fromFile(outputFile), "application/vnd.ms-excel");
-				startActivity(intent); 
+				
+				try {
+					startActivity(intent); 
+				} catch (ActivityNotFoundException e) {
+					Toast.makeText(this, "Cannot open spreadsheet. Please install a spreadsheet app that can open Excel .XLS files.", Toast.LENGTH_LONG).show();
+				}
 			}
 		}
 	}
