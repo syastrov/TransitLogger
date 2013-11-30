@@ -31,12 +31,6 @@
             android:label="@string/title_activity_trip" >
         </activity>
         <activity
-            android:name="com.example.transitlogger.GenerateSpreadsheetActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_generate_spreadsheet"
-            android:theme="@style/FullscreenTheme" >
-        </activity>
-        <activity
             android:name="com.example.transitlogger.GenerateSpreadsheeetActivity"
             android:label="@string/title_activity_generate_spreadsheeet" >
         </activity>

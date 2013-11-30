@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 public class Utils {
 	public static File getFormsDirectory() {
@@ -18,9 +19,14 @@ public class Utils {
 		return outputDir;
 	}
 	
-	public static void copyAssets(Context context) {
+	public static boolean areAssetsCopied() {
+        return Utils.getFormsDirectory().exists();
+	}
+	
+	public static boolean copyAssets(Context context) {
 		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
 		    Log.w(Utils.class.getName(), "External SD card not mounted");
+		    return false;
 		}
 		
 		AssetManager assetManager = context.getAssets();
@@ -50,8 +56,11 @@ public class Utils {
 				}
 			} catch (IOException e) {
 				Log.e("tag", "Failed to copy asset file: " + filename, e);
+				return false;
 			}
 		}
+		
+		return true;
 	}
 
 	private static void copyFile(InputStream in, OutputStream out)

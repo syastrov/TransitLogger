@@ -30,7 +30,11 @@ public class GenerateSpreadsheeetActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_generate_spreadsheet);
 		
-		Utils.copyAssets(this);
+		if (!Utils.areAssetsCopied()) {
+			if (Utils.copyAssets(this)) {
+				Toast.makeText(this, "Unable to copy forms to SD storage. Please be sure it is mounted.", Toast.LENGTH_LONG).show();
+			}
+		}
 	}
 
 	@Override
@@ -42,6 +46,11 @@ public class GenerateSpreadsheeetActivity extends Activity {
 	
 	public void onGenerate(View view) {
 	    File path = Utils.getDocumentsDirectory();
+	    
+	    if (!path.exists()) {
+			Toast.makeText(this, "Output directory " + path.toString() + " does not exist.", Toast.LENGTH_LONG).show();	
+	    	return;
+	    }
 	    
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 		String dateString = format.format(new Date());
@@ -55,14 +64,19 @@ public class GenerateSpreadsheeetActivity extends Activity {
         
         File inputFile = new File(Utils.getFormsDirectory(), "korsel.xls");
         
+	    if (!inputFile.exists()) {
+			Toast.makeText(this, "Form template " + inputFile.toString() + " does not exist.", Toast.LENGTH_LONG).show();	
+	    	return;
+	    }
+	    
+		Toast.makeText(this, "Please wait...", Toast.LENGTH_LONG).show();
+        
 		SpreadsheetFiller filler = new SpreadsheetFiller(inputFile, outputFile);
 		
 	    TripDB tripDB = new TripDB(this);
 	    tripDB.open();
 
     	filler.setTrips(tripDB.getAllTrips());
-		
-		Toast.makeText(this, "Please wait...", Toast.LENGTH_LONG).show();
 		
 		try {
 			filler.readWrite();

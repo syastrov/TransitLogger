@@ -1,5 +1,6 @@
 package com.example.transitlogger;
 
+import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.List;
 
@@ -169,7 +170,9 @@ public class TripActivity extends Activity {
 		    	}
 		    }
 
-		    public void onStatusChanged(String provider, int status, Bundle extras) {}
+		    public void onStatusChanged(String provider, int status, Bundle extras) {
+		    	Log.i("LocationListener", "Location status changed " + status);
+		    }
 
 		    public void onProviderEnabled(String provider) {}
 
@@ -295,7 +298,7 @@ public class TripActivity extends Activity {
 				if (AppStatus.isOnline(this)) {
 					setStatus("Looking up address...");
 					// Try to get the address through reverse geocode of the coordinates.
-					GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
+					GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler(new WeakReference<TripActivity>(this)));
 				}
 			}
 		}
@@ -390,8 +393,15 @@ public class TripActivity extends Activity {
 		updatePlacesAutocomplete();
 	}
 	
-	private class GeocoderHandler extends Handler {
-	    @Override
+	private static class GeocoderHandler extends Handler {
+		WeakReference<TripActivity> tripActivity;
+		
+	    public GeocoderHandler(WeakReference<TripActivity> tripActivity) {
+			super();
+			this.tripActivity = tripActivity;
+		}
+
+		@Override
 	    public void handleMessage(Message message) {
 	        String result;
 	        switch (message.what) {
@@ -399,21 +409,21 @@ public class TripActivity extends Activity {
 	            Bundle bundle = message.getData();
 	            result = bundle.getString("address");
 
-	            if (state == State.WAITING_FOR_LOCATION) {
-	            	if (startPlaceText.getText().toString().trim().length() == 0) {
-	            		startPlaceText.setText(result);
+	            if (tripActivity.get().state == State.WAITING_FOR_LOCATION) {
+	            	if (tripActivity.get().startPlaceText.getText().toString().trim().length() == 0) {
+	            		tripActivity.get().startPlaceText.setText(result);
 	            	}
-	            } else if (state == State.ENDED) {
-	            	if (endPlaceText.getText().toString().trim().length() == 0) {
-	            		endPlaceText.setText(result);
+	            } else if (tripActivity.get().state == State.ENDED) {
+	            	if (tripActivity.get().endPlaceText.getText().toString().trim().length() == 0) {
+	            		tripActivity.get().endPlaceText.setText(result);
 	            	}
 	            }
 	            
-	            setStatus("Found address.");
+	            tripActivity.get().setStatus("Found address.");
 	            break;
 	        default:
 	            result = "Couldn't get address.";
-	            setStatus(result);
+	            tripActivity.get().setStatus(result);
 	        }
 	    }   
 	}
@@ -424,7 +434,7 @@ public class TripActivity extends Activity {
 			if (AppStatus.isOnline(this)) {
 				setStatus("Looking up address...");
 				// Try to get the address through reverse geocode of the coordinates.
-				GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
+				GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler(new WeakReference<TripActivity>(this)));
 			}
 		}
 	}
@@ -459,7 +469,7 @@ public class TripActivity extends Activity {
 				if (AppStatus.isOnline(this)) {
 					setStatus("Looking up address...");
 					// Try to get the address through reverse geocode of the coordinates.
-					GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler());
+					GeocodingHelper.getFromLocation(currentBestLocation.getLatitude(), currentBestLocation.getLongitude(), 1, new GeocoderHandler(new WeakReference<TripActivity>(this)));
 				}
 			}
 		}
